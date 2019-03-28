@@ -1,2 +1,7 @@
+cached-property
+click
+dataclasses
+pymupdf
 requests
-os
+requests-cache
+rows>=0.4.1
