@@ -2,7 +2,7 @@
 
 Baixa os arquivos referentes aos salários dos funcionários do governo do estado do Amazonas nos formatos CSV e PDF.
 
-Fonte: [Portal da Transparência do Amazonas](http://www.transparencia.am.gov.br/pessoal/)
+Fonte: [Portal da Transparência do Estado do Amazonas](http://www.transparencia.am.gov.br/pessoal/)
 
 ### Instalação
 Este projeto requer **Python 3.+** e outras bibliotecas. Utilize o arquivo **requirements.txt** para instalar as dependências
