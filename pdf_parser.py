@@ -69,9 +69,11 @@ if __name__ == "__main__":
 
     from rows.utils import download_file
 
-
     parser = ArgumentParser()
-    parser.add_argument("--url", default="http://www.transparencia.am.gov.br/arquivos/2014/158_201404.pdf")
+    parser.add_argument(
+        "--url",
+        default="http://www.transparencia.am.gov.br/arquivos/2014/158_201404.pdf",
+    )
     args = parser.parse_args()
     url = args.url
     pdf_filename = Path(url).name
