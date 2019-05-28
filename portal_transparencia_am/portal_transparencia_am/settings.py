@@ -64,9 +64,10 @@ CONCURRENT_REQUESTS_PER_IP = 20
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'portal_transparencia_am.pipelines.PortalTransparenciaAmPipeline': 300,
-#}
+ITEM_PIPELINES = {
+   'portal_transparencia_am.pipelines.PdfPipeline': 300,
+   'portal_transparencia_am.pipelines.CsvPipeline': 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html

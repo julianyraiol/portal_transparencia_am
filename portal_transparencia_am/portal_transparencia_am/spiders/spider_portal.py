@@ -3,22 +3,15 @@ from scrapy.http import Request
 import rows
 import json
 
-
 from pathlib import Path
 from portal_transparencia_am.spiders import utils
+from portal_transparencia_am.items import ResponsePortal
 
-class PortalSpider(scrapy.Spider):
+class ListaServidorSpider(scrapy.Spider):
 
-	name = 'generate-csv'
-
-	def __init__(self):
-		self.url = 'http://www.transparencia.am.gov.br/wp-admin/admin-ajax.php'
-		
-		self.route = 'get_meses_docs'
-
-		self.current_path = Path('portal_amazonas')
-		if not self.current_path.exists():
-			self.current_path.mkdir()
+	name = 'portal'
+	start_urls = 'http://www.transparencia.am.gov.br/wp-admin/admin-ajax.php'
+	route = 'get_meses_docs'
 
 	def start_requests(self):
 		entities = utils.get_entity()
@@ -26,43 +19,28 @@ class PortalSpider(scrapy.Spider):
 
 		for entity in entities:
 			for year in years:
-				formdata = dict(action=self.route, ano=year,
-									orgao_id=str(entity.id))
-									
-				yield scrapy.FormRequest(url=self.url, 
-									formdata = formdata,
-									callback=self.parse,
-									meta={'name':entity.nome_orgao, 'year':year})
-		
+				formdata = dict(
+							action = self.route,
+							ano = '2018',
+							orgao_id = str(entity.id)
+				)
+
+				yield scrapy.FormRequest(
+							url = self.start_urls,
+							formdata = formdata,
+							callback = self.parse,
+							meta = {'name':entity.nome_orgao}
+				)
+
 	def parse(self, response):
-		content_files = json.loads(response.body_as_unicode()) 
-		dir_name = response.request.meta['name']
-		file_path = self.current_path / dir_name
+		files = json.loads(response.body_as_unicode())
+		name = response.request.meta['name']
 		
-		if not file_path.exists():
-			file_path.mkdir()	
-
-		for content in content_files:
-			pdf_file = content['arquivos'][0]['url']
-			url_name = pdf_file.split('/')[-1]		
-			filename = file_path / url_name
-			
-			yield Request(
-				url=pdf_file,
-				callback=self.save_pdf,
-				meta={'filename':filename}
+		for content in files:
+			list_files = content['arquivos']
+			yield ResponsePortal(
+				name = name,
+				month = content['mes_descricao'],
+				pdf = list_files.pop(0),
+				csv = list_files.pop() if list_files else None
 			)
-
-	def save_pdf(self, response):
-
-		filename = response.request.meta['filename']
-	
-		self.logger.info('Saving %s', filename)
-		
-		with filename.open('wb') as current_file:
-			current_file.write(response.body)
-
-		yield {
-			"download_file" : filename,
-			"url": response.url
-		}
