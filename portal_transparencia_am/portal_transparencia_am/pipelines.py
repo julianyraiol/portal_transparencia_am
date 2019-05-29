@@ -16,10 +16,14 @@ from scrapy.http import Request
 class FilePipeline(object):
 
     def open_spider(self, spider):
+        self.file = csv.writer(open('portal.csv', 'w'))
 
         self.current_path = Path('results')
         if not self.current_path.exists():
             self.current_path.mkdir()
+
+    def close_spider(self, spider):
+        self.file.close()
 
     def process_item(self, item, spider):
 
@@ -33,7 +37,6 @@ class FilePipeline(object):
         return item
 
     def download_file(self, item, spider, type_request):
-
         try:
             request = Request(item[type_request]['url'])
             dfd = spider.crawler.engine.download(request, spider)
@@ -64,9 +67,9 @@ class FilePipeline(object):
         filename = filepath / name
         with filename.open('wb') as current_file:
             current_file.write(response.body)
+            self.file.writerow([response.body])
 
         return filename
-
 
 class RequestsPipeline(object):
 
