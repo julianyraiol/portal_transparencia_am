@@ -9,47 +9,40 @@ import json
 from pathlib import Path
 import scrapy
 
+from scrapy.exceptions import DropItem
 from scrapy.http import Request
 
-class PdfPipeline(object):
-
-    def __init__(self):
-        pass
+class FilePipeline(object):
 
     def process_item(self, item, spider):
 
-        try:
-            request = Request(item['pdf']['url'])
-            dfd = spider.crawler.engine.download(request, spider)
-            dfd.addBoth(self.save_pdf_file, item)
-        except:
-            pass
+        # Request pdf file
+        self.download_file(item, spider, type='pdf')
+
+        # Request csv file
+        if item.get('csv'):
+            self.download_file(item, spider, type='csv')
 
         return item
 
-    def save_pdf_file(self, response, item):
-        filename = 'teste.pdf'
-        with open(filename, 'wb') as current_file:
-            current_file.write(response.body)
+    def download_file(self, item, spider, type):
 
-        return filename
-
-
-class CsvPipeline(object):
-
-    def __init__(self):
-        pass
-
-    def process_item(self, item, spider):
-        url = item['csv']
-        if url:
-            request = Request(url['url'])
+        try:
+            request = Request(item[type]['url'])
             dfd = spider.crawler.engine.download(request, spider)
-            dfd.addBoth(self.save_csv_file, item)
-            return dfd
+            dfd.addBoth(self.save_file, item, type)
 
-    def save_csv_file(self, response, item):
-        filename = 'teste.csv'
+            message = 'Saving {} file'.format(type)
+            print(message)
+            return True
+        except e:
+            message = 'Failed to save {}'.format(type)
+            raise DropItem(message)
+
+    def save_file(self, response, item, type):
+
+        url = item[type]['url']
+        filename = url.split('/')[-1]
         with open(filename, 'wb') as current_file:
             current_file.write(response.body)
 
