@@ -8,6 +8,7 @@
 import json
 from pathlib import Path
 import scrapy
+import csv
 
 from scrapy.exceptions import DropItem
 from scrapy.http import Request
@@ -21,7 +22,6 @@ class FilePipeline(object):
             self.current_path.mkdir()
 
     def process_item(self, item, spider):
-
 
         # Request pdf file
         self.download_file(item, spider, type_request='pdf')
@@ -66,3 +66,28 @@ class FilePipeline(object):
             current_file.write(response.body)
 
         return filename
+
+
+class RequestsPipeline(object):
+
+    def open_spider(self, spider):
+        self.file = csv.writer(open('requests.csv', 'w'))
+
+    def close_spider(self, spider):
+        self.file.close()
+
+    def process_item(self, item, spider):
+
+        # Save pdf url
+        self.save_requests(item, type_request='pdf')
+
+        # Save pdf url
+        if item.get('csv'):
+            self.save_requests(item, type_request='csv')
+
+        return item
+
+    def save_requests(self, item, type_request):
+        url = item[type_request]['url']
+        name = url.split('/')[-1]
+        self.file.writerow([(item[type_request]['url']), name])
