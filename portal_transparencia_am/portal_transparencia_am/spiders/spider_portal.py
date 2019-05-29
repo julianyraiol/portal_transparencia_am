@@ -35,7 +35,7 @@ class ListaServidorSpider(scrapy.Spider):
 	def parse(self, response):
 		files = json.loads(response.body_as_unicode())
 		name = response.request.meta['name']
-		
+
 		for content in files:
 			list_files = content['arquivos']
 			yield ResponsePortal(

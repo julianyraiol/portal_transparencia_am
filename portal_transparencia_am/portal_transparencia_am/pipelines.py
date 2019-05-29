@@ -23,7 +23,9 @@ class PdfPipeline(object):
             dfd = spider.crawler.engine.download(request, spider)
             dfd.addBoth(self.save_pdf_file, item)
         except:
-            print(item['pdf'])
+            pass
+
+        return item
 
     def save_pdf_file(self, response, item):
         filename = 'teste.pdf'
