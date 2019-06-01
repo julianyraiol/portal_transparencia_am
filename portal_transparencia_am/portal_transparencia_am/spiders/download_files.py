@@ -70,7 +70,8 @@ class DownloadFilesSpider(scrapy.Spider):
 
 	def rows_to_csv(self, name):
 
-		table = rows.import_from_csv(name, encoding='latin-1')
+		table = rows.import_from_csv(name, encoding='latin-1') 
+		table.field_names.remove('field_10')
 		data_dict = {field_name: table[field_name] for field_name in table.field_names}
 		df = pd.DataFrame.from_dict(data_dict)
 
