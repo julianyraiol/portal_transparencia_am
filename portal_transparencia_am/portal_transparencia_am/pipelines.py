@@ -6,24 +6,23 @@
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 import json
-from pathlib import Path
-import scrapy
 import csv
 
+from pathlib import Path
+import pandas as pd
+
+import scrapy
 from scrapy.exceptions import DropItem
 from scrapy.http import Request
+
+import portal_transparencia_am.settings as settings
 
 class FilePipeline(object):
 
     def open_spider(self, spider):
-        self.file = csv.writer(open('portal.csv', 'w'))
-
-        self.current_path = Path('results')
+        self.current_path = Path(settings.FILES_STORE)
         if not self.current_path.exists():
             self.current_path.mkdir()
-
-    def close_spider(self, spider):
-        self.file.close()
 
     def process_item(self, item, spider):
 
@@ -67,17 +66,16 @@ class FilePipeline(object):
         filename = filepath / name
         with filename.open('wb') as current_file:
             current_file.write(response.body)
-            self.file.writerow([response.body])
 
         return filename
 
 class RequestsPipeline(object):
 
     def open_spider(self, spider):
-        self.file = csv.writer(open('requests.csv', 'w'))
+        self.response = csv.writer(open('requests.csv', 'w'))
 
     def close_spider(self, spider):
-        self.file.close()
+        self.response.close()
 
     def process_item(self, item, spider):
 
@@ -93,4 +91,4 @@ class RequestsPipeline(object):
     def save_requests(self, item, type_request):
         url = item[type_request]['url']
         name = url.split('/')[-1]
-        self.file.writerow([(item[type_request]['url']), name])
+        self.response.writerow([(item[type_request]['url']), name])
