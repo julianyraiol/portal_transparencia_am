@@ -63,6 +63,8 @@ class DownloadFilesSpider(scrapy.Spider):
 		
 		if csv_list:
 			portal_csv = pd.concat([self.rows_to_csv(csv_name) for csv_name in csv_list])
+			drop_columns = [column for column in portal_csv.columns if ("field" in column) or ("portal" in column) or ("Unnamed" in column)]
+			portal_csv.drop(drop_columns, axis=1, inplace=True)
 			
 			portal_csv.to_csv('portal.csv')
 
