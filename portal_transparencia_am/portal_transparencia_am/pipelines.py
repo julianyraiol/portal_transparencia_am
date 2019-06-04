@@ -7,7 +7,7 @@
 
 import json
 import csv
-
+from functools import wraps
 from pathlib import Path
 import pandas as pd
 
@@ -17,6 +17,18 @@ from scrapy.http import Request
 
 import portal_transparencia_am.settings as settings
 
+def check_spider_pipeline(process_item_method):
+    @wraps(process_item_method)
+    def wrapper(self, item, spider):
+        try:
+            if self.__class__ in spider.pipeline:
+                return process_item_method(self, item, spider)
+        except AttributeError:
+            pass
+        return item
+    return wrapper
+
+
 class FilePipeline(object):
 
     def open_spider(self, spider):
@@ -24,6 +36,7 @@ class FilePipeline(object):
         if not self.current_path.exists():
             self.current_path.mkdir()
 
+    @check_spider_pipeline
     def process_item(self, item, spider):
 
         # Request pdf file
@@ -77,6 +90,7 @@ class RequestsPipeline(object):
     def close_spider(self, spider):
         self.response.close()
 
+    @check_spider_pipeline
     def process_item(self, item, spider):
 
         # Save pdf url

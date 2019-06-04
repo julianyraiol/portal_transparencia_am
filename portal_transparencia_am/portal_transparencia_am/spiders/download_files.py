@@ -7,21 +7,26 @@ import json
 import pandas as pd
 from glob import glob
 from pathlib import Path
-
+from portal_transparencia_am import pipelines
 from portal_transparencia_am.spiders import utils
 import portal_transparencia_am.settings as settings
 from portal_transparencia_am.items import ResponsePortal
 
 class DownloadFilesSpider(scrapy.Spider):
 
-	name = 'portal'
+	name = 'download_salary'
 	start_urls = 'http://www.transparencia.am.gov.br/wp-admin/admin-ajax.php'
 	route = 'get_meses_docs'
+
+	pipeline = [
+		pipelines.FilePipeline,
+        pipelines.RequestsPipeline
+	]
 
 	def start_requests(self):
 		entities = utils.get_entity()
 		years = utils.get_years()
-		
+
 		for entity in entities:
 			for year in years:
 
@@ -56,23 +61,24 @@ class DownloadFilesSpider(scrapy.Spider):
 		spider = super(DownloadFilesSpider, cls).from_crawler(crawler, *args, **kwargs)
 		crawler.signals.connect(spider.spider_closed, signal=signals.spider_closed)
 		return spider
-	
+
+
 	def spider_closed(self, spider):
 		path = settings.FILES_STORE + '/*/csv/*.csv'
 		csv_list = glob(path)
-		
+
 		if csv_list:
 			portal_csv = pd.concat([self.rows_to_csv(csv_name) for csv_name in csv_list])
 			drop_columns = [column for column in portal_csv.columns if ("field" in column) or ("portal" in column) or ("Unnamed" in column)]
 			portal_csv.drop(drop_columns, axis=1, inplace=True)
-			
+
 			portal_csv.to_csv('portal.csv')
 
 			spider.logger.info('Spider closed: %s', portal_csv)
 
 	def rows_to_csv(self, name):
 
-		table = rows.import_from_csv(name, encoding='latin-1') 
+		table = rows.import_from_csv(name, encoding='latin-1')
 		data_dict = {field_name: table[field_name] for field_name in table.field_names}
 		df = pd.DataFrame.from_dict(data_dict)
 
