@@ -37,6 +37,7 @@ def convert_row(row):
     """Generate the final dict based on data from the PDF"""
 
     row = row._asdict()
+    print(row)
     nome_lotacao = row.pop("nome_lotacao").splitlines()
     funcao_vinculo = row.pop("funcao_vinculo").splitlines()
     row["funcao"] = funcao_vinculo[0]

@@ -30,7 +30,5 @@ class MergeFilesSpider(scrapy.Spider):
 	def parse(self, response):
 		name = response.request.meta["name"]
 		table = rows.import_from_csv(name, encoding='latin-1')
-		print(table.field_names)
-		input_file = csv.DictReader(open(name))
-		for row in input_file:
-			yield row
+		for row in table:
+			yield row._asdict()
