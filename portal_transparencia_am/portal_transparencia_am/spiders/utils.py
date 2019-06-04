@@ -75,4 +75,3 @@ def get_entity():
 
 def get_years():
     return ['2014', '2015', '2016', '2017', '2018', '2019']
-
