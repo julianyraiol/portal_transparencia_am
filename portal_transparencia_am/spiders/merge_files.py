@@ -30,7 +30,4 @@ class MergeFilesSpider(scrapy.Spider):
 	def parse(self, response):
 		name = response.request.meta["name"]
 		table = rows.import_from_csv(name, encoding='latin-1')
-		data_dict = {field_name: table[field_name] for field_name in table.field_names}
-		df = pd.DataFrame.from_dict(data_dict)
-
-		yield df.to_dict('records')[0]
+		yield rows.export_to_dicts(table)[0]

@@ -14,7 +14,7 @@ from portal_transparencia_am.items import ResponsePortal
 
 class DownloadFilesSpider(scrapy.Spider):
 
-	name = 'download_salary'
+	name = 'download_files'
 	start_urls = 'http://www.transparencia.am.gov.br/wp-admin/admin-ajax.php'
 	route = 'get_meses_docs'
 
