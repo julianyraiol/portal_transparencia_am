@@ -30,4 +30,4 @@ class MergeFilesSpider(scrapy.Spider):
 	def parse(self, response):
 		name = response.request.meta["name"]
 		table = rows.import_from_csv(name, encoding='latin-1')
-		yield rows.export_to_dicts(table)[0]
+		yield from rows.export_to_dicts(table)
