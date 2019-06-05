@@ -32,7 +32,7 @@ class DownloadFilesSpider(scrapy.Spider):
 
 				formdata = dict(
 							action = self.route,
-							ano = str(2018),
+							ano = str(year),
 							orgao_id = str(entity.id)
 				)
 
@@ -55,31 +55,4 @@ class DownloadFilesSpider(scrapy.Spider):
 				pdf = list_files.pop(0),
 				csv = list_files.pop() if list_files else None
 			)
-
-	@classmethod
-	def from_crawler(cls, crawler, *args, **kwargs):
-		spider = super(DownloadFilesSpider, cls).from_crawler(crawler, *args, **kwargs)
-		crawler.signals.connect(spider.spider_closed, signal=signals.spider_closed)
-		return spider
-
-
-	def spider_closed(self, spider):
-		path = settings.FILES_STORE + '/*/csv/*.csv'
-		csv_list = glob(path)
-
-		if csv_list:
-			portal_csv = pd.concat([self.rows_to_csv(csv_name) for csv_name in csv_list])
-			drop_columns = [column for column in portal_csv.columns if ("field" in column) or ("portal" in column) or ("Unnamed" in column)]
-			portal_csv.drop(drop_columns, axis=1, inplace=True)
-
-			portal_csv.to_csv('portal.csv')
-
-			spider.logger.info('Spider closed: %s', portal_csv)
-
-	def rows_to_csv(self, name):
-
-		table = rows.import_from_csv(name, encoding='latin-1')
-		data_dict = {field_name: table[field_name] for field_name in table.field_names}
-		df = pd.DataFrame.from_dict(data_dict)
-
-		return df
+		
