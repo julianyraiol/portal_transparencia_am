@@ -5,3 +5,4 @@ pymupdf
 requests
 requests-cache
 rows>=0.4.1
+scrapy
