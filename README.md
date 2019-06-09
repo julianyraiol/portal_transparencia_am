@@ -1,4 +1,4 @@
-# Crawler dos arquivos referentes ao Portal da Transparência do Amazonas
+# Portal da Transparência do Amazonas
 
 Baixa os arquivos referentes aos salários dos funcionários do governo do estado do Amazonas nos formatos CSV e PDF.
 
